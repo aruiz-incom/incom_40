@@ -1,28 +1,13 @@
 import Head from "next/head";
-import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import Search from "../components/search";
+import Complete from "../components/complete";
+import Open from "../components/open";
+import Process from "../components/process";
+import Preparation from "../components/preparation";
 
 export default function Home() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = ({ pedido, monto }) => {
-    const body = {
-      order: pedido,
-      amount: monto,
-    };
-    fetch("/api/getOrderSale", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
-  };
+  const step = useSelector((state) => state.steps.step);
   return (
     <>
       <Head>
@@ -33,39 +18,11 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <section className="max-w-full w-full h-screen">
-        <div className="flex flex-col justify-center items-center py-4">
-          <h1 className="font-bold">Facturación Electrónica</h1>
-          <p className="font-light text-sm">
-            Ingresa a continuación los datos para emitir su factura electrónica
-          </p>
-        </div>
-        <div className="flex justify-center items-center">
-          <p className="font-light">Ingresa el número de pedido y el monto</p>
-        </div>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col justify-center items-center space-y-4 h-1/2 border border-red-500"
-        >
-          <input
-            placeholder="Número de pedido"
-            className="text-center focus:outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-400 rounded"
-            {...register("pedido", { required: true })}
-          />
-          <input
-            type="text"
-            placeholder="Monto total"
-            className="text-center focus:outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-400 rounded"
-            {...register("monto", { required: true })}
-          />
-          <button
-            type="submit"
-            className="bg-blue-400 px-4 py-1 rounded text-white hover:bg-blue-500"
-          >
-            Siguiente
-          </button>
-        </form>
-      </section>
+      {step === 0 && <Search />}
+      {step === 10 && <Open />}
+      {step === 20 && <Process />}
+      {step === 30 && <Complete />}
+      {step === 40 && <Preparation />}
     </>
   );
 }

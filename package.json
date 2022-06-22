@@ -9,11 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.8.2",
+    "dayjs": "^1.11.2",
+    "dompurify": "^2.3.8",
     "next": "12.1.6",
+    "next-redux-wrapper": "^7.0.5",
     "react": "18.1.0",
     "react-content-loader": "^6.2.0",
     "react-dom": "18.1.0",
+    "react-easy-edit": "^1.15.0",
     "react-hook-form": "^7.31.2",
+    "react-redux": "^8.0.2",
+    "react-tooltip": "^4.2.21",
     "strong-soap": "^3.4.0",
     "sweetalert2": "^11.4.17"
   },

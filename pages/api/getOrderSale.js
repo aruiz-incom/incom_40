@@ -1,3 +1,8 @@
+import { wrapper } from "../../store/store";
+import { openStep } from "../../store/stepSlice";
+import StoreInvoiceData from "../../utils/storeInvoiceData";
+import { CreateCFDI40 } from "./facturama";
+
 const { soap } = require("strong-soap");
 
 const access = {
@@ -12,8 +17,7 @@ export default function handler(req, res) {
   }
   const url = "./WSDL/QuerySalesOrderIn.wsdl";
   const orderNumber = req.body.order;
-  const amount = req.body.amount;
-  console.log(amount);
+  const amount = req.body.amount.replace(/[^0-9.]/g, "");
   let salesOrderTotalAmount = 0;
   const requestArgs = {
     SalesOrderByElementsQuery_sync: {
@@ -50,8 +54,38 @@ export default function handler(req, res) {
           salesOrderTotalAmount += itemNetPrice;
           salesOrderTotalAmount += itemTax;
         });
-        if (salesOrderTotalAmount === parseFloat(amount)) {
-          res.send(JSON.stringify("Finded and matched"));
+        console.log(parseFloat(salesOrderTotalAmount).toFixed(2));
+        console.log(parseFloat(amount).toFixed(2));
+        if (
+          parseFloat(salesOrderTotalAmount).toFixed(2) ===
+          parseFloat(amount).toFixed(2)
+        ) {
+          switch (salesOrder.Status.ItemListCustomerOrderLifeCycleStatusCode) {
+            case "1":
+              // Status order in SAP: Abierto
+              res.send({ status: 1, data: "" });
+              break;
+            case "2":
+              // Status order in SAP: En proceso
+              const invoiceData = StoreInvoiceData(salesOrder);
+              res.send({
+                status: 2,
+                data: invoiceData,
+                salesOrder: salesOrder,
+              });
+              break;
+            case "3":
+              // Status order in SAP: Completado
+              res.send(3);
+              break;
+            case "4":
+              // Status order in SAP: En preparación
+              res.send(4);
+              break;
+            default:
+              res.send(JSON.stringify("Factura inconsistente."));
+              break;
+          }
         } else {
           res.send(JSON.stringify("Not matched"));
         }
